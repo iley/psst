@@ -1,0 +1,57 @@
+# KiCad auto-generated backup files
+*-backups/
+*.kicad_pcb-bak
+*.kicad_sch-bak
+*.kicad_prl
+*-bak
+*.bak
+
+# KiCad lock files
+*.lck
+~*.lck
+_autosave-*
+
+# Fabrication / build outputs
+**/gerbers/
+**/fab/
+**/production/
+**/plot/
+*.gbr
+*.gbl
+*.gbo
+*.gbp
+*.gbs
+*.gtl
+*.gto
+*.gtp
+*.gts
+*.gm1
+*.gml
+*.drl
+*.xnc
+*.pos
+*.pho
+*.dri
+
+# BOM / netlist exports
+*.csv
+*.xml
+*.net
+*.cmp
+
+# 3D / step exports
+*.step
+*.stp
+*.wrl
+
+# KiCad project temp / session
+*.tmp
+fp-info-cache
+*.dsn
+*.ses
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
+*~
