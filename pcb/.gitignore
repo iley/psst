@@ -55,3 +55,4 @@ fp-info-cache
 Thumbs.db
 *.swp
 *~
+.history
