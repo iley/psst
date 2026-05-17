@@ -67,6 +67,10 @@ Sits on the desk inside the office. USB-powered, always on.
 - **Role selection**: hardware switches on the PCB + selective population of
   buttons and the power input. Details TBD.
 
+## Subsystems
+
+- [Power supply](power.md) — automatic battery/USB switchover, LDO, decoupling.
+
 ## Components
 
 - Raytac MDBT50Q-1MV2
