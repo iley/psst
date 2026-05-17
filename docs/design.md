@@ -73,5 +73,8 @@ Sits on the desk inside the office. USB-powered, always on.
 
 ## Components
 
-- Raytac MDBT50Q-1MV2
-- USB-C Connector: [LCSC C2765186](https://www.lcsc.com/product-detail/C2765186.html)
+- Raytac MDBT50Q-1MV2 (nRF52840 module)
+- USB-C connector: [LCSC C2765186](https://www.lcsc.com/product-detail/C2765186.html)
+- Q1 — battery-isolation PFET: AO3401A, [LCSC C15127](https://www.lcsc.com/product-detail/C15127.html)
+- U1 — 3.3 V LDO: MCP1700T-3302E/TT, [LCSC C39051](https://www.lcsc.com/product-detail/C39051.html)
+- D1 — LDO input Schottky: B5819WS, [LCSC C64886](https://www.lcsc.com/product-detail/C64886.html)

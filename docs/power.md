@@ -26,7 +26,7 @@ bottom source; both converge on the common VCC rail on the right.
 
 ```
    ┌──────────┐
-   │  USB-C   │── VBUS ──┬──► D1 ─► LDO (3V3) ─VOUT────┐
+   │  USB-C   │── VBUS ──┬──► D1 ─► LDO MCP1700 ─VOUT──┐
    │ C2765186 │          │          no-EN, no discharge │
    │          │          │                             │
    │          │          ├──► Module VBUS pin          │
@@ -160,8 +160,9 @@ become **disqualifying** in this topology:
 The cleanest answer is to pick a simple LDO with no EN pin and no
 active discharge. Then:
 
-- When VBUS = 5 V, D1 forward-biases, LDO_VIN ≈ 4.7 V, LDO regulates
-  VCC = 3.3 V normally.
+- When VBUS = 5 V, D1 (B5819WS) forward-biases, LDO_VIN ≈ 4.6 V, LDO
+  regulates VCC = 3.3 V normally (MCP1700 dropout is ~180 mV at full
+  load — plenty of headroom).
 - When VBUS = 0, D1 blocks, C1 (on LDO_VIN) discharges through the
   LDO's quiescent current path, and the LDO is effectively off. Its
   pass element's body diode does forward-bias from VCC into LDO_VIN
@@ -173,7 +174,7 @@ active discharge. Then:
 D1 sits only in the LDO branch, not in the main VBUS rail. The module's
 USB VBUS pin and the PFET gate still see the full 5 V — they don't have
 a reverse path to worry about, and the PFET turn-off margin benefits
-from the extra 0.3 V.
+from not taking D1's ~0.4 V drop.
 
 If a future revision really needs zero LDO leakage in battery mode, add
 a second Schottky **D2** between LDO_OUT and VCC (anode at LDO_OUT).
@@ -264,18 +265,26 @@ Manufacturer part numbers are listed below. LCSC C-numbers change over
 time, so search by MPN. Multiple options are given per role for sourcing
 flexibility.
 
-### P-channel MOSFET (battery isolation)
+### Q1 — P-channel MOSFET (battery isolation)
 
-Logic-level, SOT-23, Vds ≥ 20 V, |Vgs(th)| ≤ 1.5 V, low Rds(on) at
-Vgs = −3 V.
+**Selected:** AO3401A (Alpha & Omega) — LCSC [C15127](https://www.lcsc.com/product-detail/C15127.html), SOT-23.
+Vds = −30 V, Vgs(th) = −0.4 to −1.1 V, Rds(on) ≈ 60 mΩ at Vgs = −2.5 V.
+Comfortably meets all requirements (logic-level, low Rds(on) at the
+−3 V Vgs we get on battery, body diode correctly oriented when
+S=VCC / D=BAT+).
+
+Alternatives considered:
 
 | Manufacturer  | Part             | Notes                                    |
 |---------------|------------------|------------------------------------------|
-| Alpha & Omega | AO3401A          | Very popular, very well stocked on LCSC  |
 | Diodes Inc    | DMP2305U-7       | Common alternative                       |
 | Vishay        | SI2301CDS-T1-GE3 | Slightly higher Rds(on), still fine      |
 
-### 3.3 V LDO
+### U1 — 3.3 V LDO
+
+**Selected:** MCP1700T-3302E/TT (Microchip) — LCSC [C39051](https://www.lcsc.com/product-detail/C39051.html), SOT-23-3.
+3.3 V fixed output, 250 mA, 1.6 µA Iq, 178 mV dropout at 250 mA, no EN
+pin, no active output discharge. Meets every hard requirement.
 
 Hard requirements (see [LDO selection](#ldo-selection-no-en-pin-no-active-output-discharge)
 for *why*):
@@ -289,9 +298,10 @@ for *why*):
   not to raw VBUS.
 - ≥ 100 mA Iout, dropout ≤ 400 mV.
 
+Alternatives considered:
+
 | Manufacturer | Part             | Iout  | Iq      | EN | Notes                          |
 |--------------|------------------|-------|---------|----|--------------------------------|
-| Microchip    | MCP1700-3302E/TT | 250mA | 1.6 µA  | no | First choice; SOT-23           |
 | Torex        | XC6206P332MR     | 200mA | 1 µA    | no | Very low Iq; SOT-23            |
 | Holtek       | HT7333-A         | 250mA | 4 µA    | no | Cheapest; SOT-89               |
 
@@ -304,15 +314,21 @@ for *why*):
 
 ### D1 — VIN-side Schottky (required)
 
-In series with the LDO's VIN, anode toward VBUS. Blocks reverse current
-from VCC back into the VBUS rail when USB is unplugged.
-≥ 200 mA forward (LDO input current plus margin), Vrwm ≥ 20 V, low Vf
-preferred (smaller drop = more LDO headroom).
+**Selected:** B5819WS (Diodes Inc) — LCSC [C64886](https://www.lcsc.com/product-detail/C64886.html), SOD-123.
+1 A forward, Vrwm = 40 V, Vf ≈ 0.4 V at our LDO input currents
+(tens of mA), reverse leakage at our reverse voltage (~4 V vs the
+30+ V the datasheet quotes) is in the low-µA range. Anode toward
+VBUS, cathode toward LDO_VIN.
+
+Requirements: in series with the LDO's VIN, anode toward VBUS.
+≥ 200 mA forward, Vrwm ≥ 20 V, low Vf preferred (smaller drop = more
+LDO headroom).
+
+Alternatives considered:
 
 | Manufacturer | Part         | Package | Vf @ 100 mA | Notes                    |
 |--------------|--------------|---------|-------------|--------------------------|
-| Nexperia     | PMEG2010EJ   | SOD-323 | ~0.3 V      | Recommended; small        |
-| Diodes Inc   | B5819WS-7-F  | SOD-123 | ~0.4 V      | 1 A, very common          |
+| Nexperia     | PMEG2010EJ   | SOD-323 | ~0.3 V      | Smaller, slightly lower Vf|
 | Generic      | SS14         | SMA     | ~0.4 V      | Oversized but stocked     |
 
 ### USB-C connector
